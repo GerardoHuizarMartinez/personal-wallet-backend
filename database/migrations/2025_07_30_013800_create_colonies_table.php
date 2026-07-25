@@ -9,6 +9,7 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
+
     public function up(): void
     {
         Schema::create('colonies', function (Blueprint $table) {
@@ -18,11 +19,11 @@ return new class extends Migration
             $table->unsignedSmallInteger('settlement_type_code');
             $table->string('settlement_type', 500);
             $table->unsignedSmallInteger('city_code');
-            $table->string('city' , 100);
+            $table->string('city', 100);
             $table->tinyInteger('state_code');
-            $table->string('state' , 50);
+            $table->string('state', 50);
             $table->unsignedMediumInteger('office_code');
-            $table->string('zone' , 25);
+            $table->string('zone', 25);
             $table->timestamps();
             $table->softDeletes();
         });

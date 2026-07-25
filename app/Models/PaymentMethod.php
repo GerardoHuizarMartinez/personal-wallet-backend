@@ -3,17 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Expense;
+use App\Models\Income;
 
 class PaymentMethod extends Model
 {
     protected $fillable = [
-        'method',
+        'name',
+        'label',
         'icon',
-        'created_at'
     ];
 
-    public function purchases()
+    public function expenses()
     {
-        return $this->hasMany(Purchase::class,'payment_method_id');
+        return $this->hasMany(Expense::class,'payment_method_id');
+    }
+
+        public function incomes()
+    {
+        return $this->hasMany(Income::class,'payment_method_id');
     }
 }

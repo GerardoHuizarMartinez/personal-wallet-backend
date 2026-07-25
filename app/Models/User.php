@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Sanctum\HasApiTokens;
 
 class User extends Model
 {
-    use SoftDeletes;
+    use HasApiTokens, SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -15,13 +16,12 @@ class User extends Model
         'second_last_name',
         'birthday',
         'gender',
+        'email',
+        'password',
         'telephone',
         'cellphone',
         'country',
-        'zipcode',
-        'state',
-        'municipality',
-        'colony',
+        'colony_id',
         'street',
         'no_ext',
         'no_int',
@@ -29,5 +29,9 @@ class User extends Model
         'url_image',
     ];
 
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
     
 }

@@ -13,9 +13,9 @@ class PaymentMethodsSeeder extends Seeder
      */
     public function run(): void
     {
-        PaymentMethod::create(['method' => 'Efectivo', 'icon' => 'payments', 'created_at' => '2024-10-15 13:00:00',]);
-        PaymentMethod::create(['method' => 'Transferencia', 'icon' => 'swap-horiz', 'created_at' => '2024-10-15 13:00:00',]);
-        PaymentMethod::create(['method' => 'Tarjeta de débito', 'icon' => 'credit-card', 'created_at' => '2024-10-15 13:00:00',]);
-        PaymentMethod::create(['method' => 'Tarjeta de crédito', 'icon' => 'credit-card', 'created_at' => '2024-10-15 13:00:00',]);
+        PaymentMethod::create(['name' => 'Efectivo', 'label' => 'cash', 'created_at' => '2024-10-15 13:00:00',]);
+        PaymentMethod::create(['name' => 'Transferencia', 'label' => 'transfer', 'created_at' => '2024-10-15 13:00:00',]);
+        PaymentMethod::create(['name' => 'Tarjeta de débito', 'label' => 'debit_card', 'created_at' => '2024-10-15 13:00:00',]);
+        PaymentMethod::create(['name' => 'Tarjeta de crédito', 'label' => 'credit-card', 'created_at' => '2024-10-15 13:00:00',]);
     }
 }

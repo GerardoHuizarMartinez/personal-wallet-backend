@@ -38,8 +38,56 @@ class CategoriesSeeder extends Seeder
             Category::create([
                 'name' => $name,
                 'icon' => $icon,
+                'type' => 'expense',
+                'status' => 'Active',
                 'created_at' => $created_at->format('Y-m-d H:i:s'),
             ]);
         }
+
+        Category::create([
+            'name' => 'Pago de semana',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
+        Category::create([
+            'name' => 'Pago de quincena',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
+        Category::create([
+            'name' => 'Prestamo',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
+        Category::create([
+            'name' => 'Finiquito',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
+        Category::create([
+            'name' => 'Cundina',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
+        Category::create([
+            'name' => 'Cobro de deuda',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
+        Category::create([
+            'name' => 'Aguinaldo',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
+        Category::create([
+            'name' => 'Utilidades',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
+        Category::create([
+            'name' => 'Otro',
+            'status' => 'Active',
+            'type' => 'income'
+        ]);
     }
 }

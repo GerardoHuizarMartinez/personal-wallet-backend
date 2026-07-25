@@ -3,28 +3,31 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\Category;
+use App\Models\PaymentMethod;
+
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Expense extends Model
 {
-    use SoftDeletes;
     protected $fillable = [
-        'user_id',
+        'product_name',
         'amount',
-        'expense_date',
-        'description',
-        'purchase_id',
-        'install_payment_id',
+        'user_id',
+        'category_id',
         'payment_method_id',
+        'expense_date',
+        'comments'
     ];
 
 
-    public function purchase()
+    public function category()
     {
-        return $this->belongsTo(Purchase::class);
+        return $this->belongsTo(Category::class);
     }
 
-    public function paymentMethod()
+    public function payment_method()
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
     }

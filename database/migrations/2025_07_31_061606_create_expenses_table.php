@@ -12,28 +12,29 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::create('incomes', function (Blueprint $table) {
+        Schema::create('expenses', function (Blueprint $table) {
+
             $table->id();
             $table->string('product_name');
             $table->decimal('amount', 9, 2);
-            $table->foreignId('user_id')->constrained()->onDelete('restrict');
-            $table->foreignId('category_id')->constrained()->onDelete('restrict');
-            $table->foreignId('payment_method_id')->constrained()->onDelete('restrict');
-            $table->date('income_date');
+            $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->onDelete('restrict');       // 👈 nullable + restrict
+            $table->foreignId('payment_method_id')->nullable()->constrained('payment_methods')->onDelete('restrict'); // 👈 nullable + restrict
+            $table->date('expense_date');
             $table->text('comments')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
     }
 
-  public function down(): void
+public function down(): void
 {
-    Schema::table('incomes', function (Blueprint $table) {
+    Schema::table('expenses', function (Blueprint $table) {
         $table->dropForeign(['payment_method_id']);
         $table->dropForeign(['category_id']);
         $table->dropForeign(['user_id']);
     });
     
-    Schema::dropIfExists('incomes');
+    Schema::dropIfExists('expenses');
 }
 };
