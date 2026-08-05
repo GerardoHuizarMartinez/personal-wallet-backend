@@ -30,7 +30,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
     
 Route::get('/expenses', [ExpenseController::class, 'list']);
 Route::get('/getCategoryListIncome', [CategoryController::class, 'listIncome']);
-Route::get('/getPaymentMethodList', [PaymenMethodController::class, 'list']);
 
 Route::post('/store-expense', [ExpenseController::class, 'store']);
 Route::delete('/delete/{expense}', [ExpenseController::class, 'destroy']);
