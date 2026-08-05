@@ -2,39 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Category;
-use Exception;
+use App\Services\Catalog\CategoryService;
+use Illuminate\Http\JsonResponse;
 
 
-class CategoryController
+class CategoryController 
 {
+    public function __construct(
+        private readonly CategoryService $categoryService
+    ) {}
 
-    public function list()
+    public function listExpense(): JsonResponse
     {
-
-        try {
-            $categories = Category::select("id", "name", "icon", "label" )->orderBy("id")->get();
-            return response()->json(["category" => $categories, "status" =>  200]);
-        } catch (Exception $error) {
-            response()->json(["error" => $error, "code" => 200]);
-        }
+        return response()->json(
+            $this->categoryService->getExpenseCategories()
+        );
     }
 
-
-    /**
-     * Update the resource in storage.
-     */
-    public function update(Request $request)
+    public function listIncome(): JsonResponse
     {
-        //
-    }
-
-    /**
-     * Remove the resource from storage.
-     */
-    public function destroy(): never
-    {
-        abort(404);
+        return response()->json(
+            $this->categoryService->getIncomeCategories()
+        );
     }
 }
