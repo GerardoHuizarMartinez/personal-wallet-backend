@@ -2,6 +2,7 @@
 
 namespace App\Mappers;
 
+use App\Models\Expense;
 use Illuminate\Support\Collection;
 
 class ExpenseMapper
@@ -23,6 +24,8 @@ class ExpenseMapper
                 'transactionDate' => $expense->expense_date,
 
                 'currency' => 'MXN',
+
+                'created_at' => $expense->created_at,
 
                 'category' => [
 
@@ -46,5 +49,19 @@ class ExpenseMapper
 
             ];
         });
+    }
+
+    public static function toArray(Expense $expense): array
+    {
+        return [
+            'id'                => $expense->id,
+            'product_name'      => $expense->product_name,
+            'amount'            => (float) $expense->amount,
+            'category_id'       => $expense->category_id,
+            'payment_method_id' => $expense->payment_method_id,
+            'expense_date'      => $expense->expense_date,
+            'comments'          => $expense->comments,
+            'created_at'        => $expense->created_at,
+        ];
     }
 }

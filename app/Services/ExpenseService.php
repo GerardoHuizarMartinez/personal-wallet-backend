@@ -1,30 +1,44 @@
 <?php
 
-namespace App\Services\Purchase;
+namespace App\Services;
 
-use App\Mappers\ExpenseMapper;
-use Illuminate\Support\Collection;;
 use App\Models\Expense;
+use App\Mappers\ExpenseMapper;
+use Illuminate\Support\Collection;
 
-class PurchaseService
+
+class ExpenseService
 {
-    public function findCurrentMonthPurchases()
+    public function create(array $data): array
     {
-        $purchases = Expense::with([
+        $expense = Expense::create([
+            'product_name'      => $data['product_name'],
+            'amount'            => $data['amount'],
+            'category_id'       => $data['category_id'],
+            'payment_method_id' => $data['payment_method_id'],
+            'expense_date'      => $data['expense_date'],
+            'comments'          => $data['comments'] ?? null,
+            'user_id'           => 1, // temporal hasta tener auth
+        ]);
+
+        return ExpenseMapper::toArray($expense);
+    } 
+
+    public function findCurrentMonthExpenses()
+    {
+        $expenses = Expense::with([
             'category',
             'payment_method',
         ])
-            ->whereMonth('expense_date', '07')
-            ->whereYear('expense_date', 2025)
-            // ->whereMonth('expense_date', now()->month)
-            // ->whereYear('expense_date', now()->year)
-            ->orderByDesc('expense_date')
+            ->whereMonth('expense_date', now()->month)
+            ->whereYear('expense_date', now()->year)
+            ->orderBy('created_at', 'desc')
             ->get();
 
-        return ExpenseMapper::toDashboard($purchases);
+        return ExpenseMapper::toDashboard($expenses);
     }
 
-    public function findYearlyExpenses(?int $year = null): Collection
+        public function findYearlyExpenses(?int $year = null): Collection
     {
         $year ??= now()->year;
 
@@ -90,5 +104,4 @@ class PurchaseService
             ->get();
     }
 
-    // public function findExpensesByPaymentMethod(?int $year = null): Collection {}
 }

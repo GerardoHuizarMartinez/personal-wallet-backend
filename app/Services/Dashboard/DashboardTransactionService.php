@@ -6,9 +6,17 @@ use Illuminate\Support\Collection;
 
 class DashboardTransactionService
 {
-    public function build(Collection $purchases, Collection $incomes): Collection 
+    public function build(Collection $purchases, Collection $incomes): Collection
     {
-        return collect()->merge($purchases)->merge($incomes)->sortByDesc('transactionDate')->values();
+        return collect()
+            ->merge($purchases)
+            ->merge($incomes)
+            ->sort(function ($a, $b) {
+                if ($a['transactionDate'] === $b['transactionDate']) {
+                    return $b['created_at'] <=> $a['created_at'];
+                }
+                return $b['transactionDate'] <=> $a['transactionDate'];
+            })
+            ->values();
     }
-
 }

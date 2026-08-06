@@ -2,6 +2,7 @@
 
 namespace App\Mappers;
 
+use App\Models\Income;
 use Illuminate\Support\Collection;
 
 class IncomeMapper
@@ -23,6 +24,8 @@ class IncomeMapper
                 'transactionDate' => $incomes->income_date,
 
                 'currency' => 'MXN',
+
+                'created_at' => $incomes->created_at,
 
                 'category' => [
 
@@ -46,5 +49,19 @@ class IncomeMapper
 
             ];
         });
+    }
+
+      public static function toArray(Income $income): array
+    {
+        return [
+            'id'                => $income->id,
+            'product_name'      => $income->product_name,
+            'amount'            => (float) $income->amount,
+            'category_id'       => $income->category_id,
+            'payment_method_id' => $income->payment_method_id,
+            'income_date'      => $income->income_date,
+            'comments'          => $income->comments,
+            'created_at'        => $income->created_at,
+        ];
     }
 }

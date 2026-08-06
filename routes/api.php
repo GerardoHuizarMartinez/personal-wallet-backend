@@ -28,21 +28,20 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     
-Route::get('/expenses', [ExpenseController::class, 'list']);
-Route::get('/getCategoryListIncome', [CategoryController::class, 'listIncome']);
-
-Route::post('/store-expense', [ExpenseController::class, 'store']);
-Route::delete('/delete/{expense}', [ExpenseController::class, 'destroy']);
-Route::put('/update/{id}', [ExpenseController::class, 'update']);
-
 Route::get('/dashboard', [DashboardController::class, 'index']);
-
-
-Route::get('/getCategoryList', [CategoryController::class, 'index']);
 
 Route::prefix('categories')->group(function () {
     Route::get('expense', [CategoryController::class, 'listExpense']);
     Route::get('income',  [CategoryController::class, 'listIncome']);
+    Route::get('/getCategoryList', [CategoryController::class, 'todas']);
+
+});
+
+Route::prefix('expenses')->group(function () {
+    Route::get('/',       [ExpenseController::class, 'list']);
+    Route::post('/',      [ExpenseController::class, 'store']);
+    Route::put('/{id}',   [ExpenseController::class, 'update']);
+    Route::delete('/{id}',[ExpenseController::class, 'destroy']);
 });
 
 Route::get('payment-methods', [PaymentMethodController::class, 'list']);

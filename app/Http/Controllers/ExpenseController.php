@@ -7,12 +7,14 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Validation\ValidationException;
 use App\Models\Expense;
+use App\Services\ExpenseService;
+
 
 class ExpenseController
 {
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct(
+        private readonly ExpenseService $expenseService
+    ) {}
 
 
     public function list()
@@ -40,13 +42,13 @@ class ExpenseController
                 'category:id,name',
                 'payment_method:id,name,slug',
             ])
-            ->whereBetween('expense_date', ["2025-07-01", "2025-07-31"])
+            ->whereBetween('expense_date', [$startdate, $enddate])
             ->where('user_id', 1)
             ->orderByDesc('id')
             ->paginate(200); // ← ¿tienes esto?
 
         // Y el summary se calcula sobre TODOS los registros, no solo la página
-        $allList = Expense::whereBetween('expense_date', ["2025-07-01", "2025-07-31"])
+        $allList = Expense::whereBetween('expense_date', [$startdate, $enddate])
             ->where('user_id', 1)
             ->get(['amount']);
 
@@ -72,59 +74,22 @@ class ExpenseController
         ]);
     }
 
-    public function index(Request $request)
-    {
-        //
-    }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
 
-        try {
-            $validate = $request->validate([
-                'product_name'       => 'required|string',
-                'amount'        => 'required|numeric',
-                'user_id'            => 'required|numeric',
-                'category_id'        => 'required|numeric',
-                'payment_method_id'  => 'required|numeric',
-                'expense_date'      => 'required|date',
-                'comments'           => 'nullable|string'
-            ]);
+        $validated = $request->validate([
+            'product_name'      => 'required|string|max:255',
+            'amount'            => 'required|numeric|min:0.01',
+            'category_id'       => 'required|exists:categories,id',
+            'payment_method_id' => 'required|exists:payment_methods,id',
+            'expense_date'      => 'required|date',
+            'comments'          => 'nullable|string|max:250',
+        ]);
 
-            Expense::create([
-                'product_name' => $request->input('product_name'),
-                'amount' => $request->input('amount'),
-                'user_id' => $request->input('user_id'),
-                'category_id' => $request->input('category_id'),
-                'payment_method_id' => $request->input('payment_method_id'),
-                'expense_date' => $request->input('expense_date'),
-                'comments' => $request->input('comments'),
-            ]);
+        $expense = $this->expenseService->create($validated);
 
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Compra registrada correctamente',
-                'data' => $validate,
-            ], 200);
-        } catch (ValidationException $e) {
-            // Retornar error 422 con detalles de validación
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error de validación',
-                'errors' => $e->errors(),  // Aquí están los mensajes por campo
-            ], 422);
-        } catch (Exception $e) {
-            // Retornar error 422 con detalles de validación
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Error ',
-                'errors' => $e,  // Aquí están los mensajes por campo
-            ], 400);
-        }
+        return response()->json($expense, 201);
     }
 
 

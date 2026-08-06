@@ -5,6 +5,7 @@ namespace App\Services\Dashboard;
 use Illuminate\Support\Collection;
 use App\Services\Income\IncomeService;
 use App\Services\Purchase\PurchaseService;
+use App\Services\ExpenseService;
 //use App\Services\Chart\App\Services\Charts\MonthlyTrendChartService;
 use App\Services\Dashboard\DashboardSummaryService;
 use App\Services\Dashboard\DashboardTransactionService;
@@ -14,7 +15,7 @@ class DashboardService
 
 
     public function __construct(
-        private PurchaseService $purchaseService,
+        private ExpenseService $expenseService,
 
         private IncomeService $incomeService,
 
@@ -33,13 +34,14 @@ class DashboardService
         |------------------------------------------
         */
 
-        $purchases = $this->purchaseService->findCurrentMonthPurchases();
+        $expenses = $this->expenseService->findCurrentMonthExpenses();
 
         $incomes = $this->incomeService->findCurrentMonthIncomes();
 
-        $yearlyExpenses = $this->purchaseService->findYearlyExpenses();
 
-        $yearlyIncomes = $this->incomeService->findYearlyIncomes();
+        // $yearlyExpenses = $this->expenseService->findYearlyExpenses();
+
+        // $yearlyIncomes = $this->incomeService->findYearlyIncomes();
 
         /*
         |------------------------------------------
@@ -47,9 +49,9 @@ class DashboardService
         |------------------------------------------
         */
 
-        $summary = $this->summaryService->build( $purchases, $incomes );
+        $summary = $this->summaryService->build( $expenses, $incomes );
 
-        $transactions = $this->transactionService->build($purchases, $incomes);
+        $transactions = $this->transactionService->build($expenses, $incomes);
 
         // dd($transactions);
 

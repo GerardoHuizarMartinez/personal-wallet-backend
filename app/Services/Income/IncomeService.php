@@ -8,16 +8,30 @@ use App\Models\Income;
 
 class IncomeService  
 {
+
+    public function create(array $data): array
+    {
+        $income = Income::create([
+            'product_name'      => $data['product_name'],
+            'amount'            => $data['amount'],
+            'category_id'       => $data['category_id'],
+            'payment_method_id' => $data['payment_method_id'],
+            'income_date'      => $data['income_date'],
+            'comments'          => $data['comments'] ?? null,
+            'user_id'           => 1, // temporal hasta tener auth
+        ]);
+
+        return IncomeMapper::toArray($income);
+    }
+
    public function findCurrentMonthIncomes()
 {
     $incomes = Income::with([
         'category',
     ])
-        // ->whereMonth('income_date', now()->month)
-        // ->whereYear('income_date', now()->year)
-        ->whereMonth('income_date', 07)
-        ->whereYear('income_date', 2025)
-        ->orderByDesc('income_date')
+        ->whereMonth('income_date', now()->month)
+        ->whereYear('income_date', now()->year)
+        ->orderBy('created_at', 'desc')
         ->get();
 
     //  dd($incomes);
