@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Validation\ValidationException;
@@ -123,28 +124,23 @@ class ExpenseController
         }
     }
 
-
-    public function destroy($expenseId)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id): JsonResponse
     {
         try {
-            $expense = Expense::find($expenseId);
 
-            if ($expense->purchase) {
-                $expense->delete();
-                $expense->purchase->delete();
-            }
+            $expense = Expense::findOrFail($id);
+            $expense->delete();
 
             return response()->json([
-                'status' => 200,
-                'message' => 'Registro eliminado correctamente',
-                'pur' => $expense,
-                // 'exp' => $expense,
-            ]);
+                'message' => 'Gasto eliminado correctamente',
+            ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'status' => 500,
-                'message' => $e,
-            ]);
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }
