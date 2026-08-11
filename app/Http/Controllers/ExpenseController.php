@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Validation\ValidationException;
 use App\Models\Expense;
 use App\Services\ExpenseService;
+use App\Mappers\ExpenseMapper;
 
 
 class ExpenseController
@@ -98,39 +99,23 @@ class ExpenseController
     {
         try {
 
-            $validate = $request->validate([
-                'product_name'       => 'required|string',
-                'amount'        => 'required|numeric',
-                'category_id'        => 'required|numeric',
-                'payment_method_id'  => 'required|numeric',
+            $validated = $request->validate([
+                'product_name'      => 'required|string',
+                'amount'            => 'required|numeric',
+                'category_id'       => 'required|numeric',
+                'payment_method_id' => 'required|numeric',
                 'expense_date'      => 'required|date',
-                'comments'           => 'nullable|string'
+                'comments'          => 'nullable|string',
             ]);
 
-            // Buscar el expense con su purchase
-            $expense = Expense::find($id)->get();
+            $expense = Expense::findOrFail($id);
+            $expense->update($validated);
+            $expense->load('category', 'payment_method'); // ← carga relaciones
 
 
-            // Actualizar expense con datos del request
-            $expense->update([
-                'product_name' => $validate['product_name'],
-                'amount' => $validate['amount'],
-                'category_id' => $validate['category_id'],
-                'payment_method_id' => $validate['payment_method_id'],
-                'expense_date' => $validate['expense_date'],
-                'comments' => $validate['comments'],
-            ]);
-
-
-            $expense->refresh(); // mismo que fresh()
-            $expense->load('paymentMethod', 'category');
-
-            return response()->json([
-                'status' => 200,
-                'message' => 'Registro actualizado correctamente',
-                'expense' => $expense,
-                'purchase' => $expense->purchase,
-            ]);
+            return response()->json(
+                ExpenseMapper::toDashboard(collect([$expense]))->first()
+            ); 
         } catch (Exception $e) {
             return response()->json([
                 'status' => 500,
