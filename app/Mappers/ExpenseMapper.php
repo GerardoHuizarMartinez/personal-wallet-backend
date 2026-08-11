@@ -25,8 +25,6 @@ class ExpenseMapper
 
                 'currency' => 'MXN',
 
-                'comments' => $expense->comments,
-                
                 'created_at' => $expense->created_at,
 
                 'category' => [
@@ -48,7 +46,6 @@ class ExpenseMapper
                     'label' => $expense->payment_method->label
 
                 ],
-
 
             ];
         });
