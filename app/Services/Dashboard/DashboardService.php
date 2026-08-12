@@ -3,7 +3,7 @@
 namespace App\Services\Dashboard;
 
 use Illuminate\Support\Collection;
-use App\Services\Income\IncomeService;
+use App\Services\IncomeService;
 use App\Services\Purchase\PurchaseService;
 use App\Services\ExpenseService;
 //use App\Services\Chart\App\Services\Charts\MonthlyTrendChartService;

@@ -27,7 +27,7 @@ class ExpenseMapper
 
                 'created_at' => $expense->created_at,
 
-                'comments'        => $expense->comments, // ← esto faltaba
+                'comments'   => $expense->comments, // ← esto faltaba
 
                 'category' => [
 

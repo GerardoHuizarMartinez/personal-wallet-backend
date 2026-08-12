@@ -16,8 +16,8 @@ class ExpenseService
             'amount'            => $data['amount'],
             'category_id'       => $data['category_id'],
             'payment_method_id' => $data['payment_method_id'],
-            'expense_date'      => $data['expense_date'],
-            'comments'          => $data['comments'] ?? null,
+            'income_date'      => $data['income_date'],
+            'comments'          => $data['comments'] ,
             'user_id'           => 1, // temporal hasta tener auth
         ]);
 

@@ -6,9 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Category;
 use App\Models\PaymentMethod;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Income extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'product_name',
         'amount',
@@ -21,7 +24,7 @@ class Income extends Model
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo( Category::class, 'category_id');
+        return $this->belongsTo(Category::class, 'category_id');
     }
 
     public function payment_method()

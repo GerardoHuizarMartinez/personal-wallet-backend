@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Income;
+namespace App\Services;
 
 use Illuminate\Support\Collection;
 use App\Mappers\IncomeMapper;

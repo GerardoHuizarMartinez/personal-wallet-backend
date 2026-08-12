@@ -25,6 +25,8 @@ class IncomeMapper
 
                 'currency' => 'MXN',
 
+                'comments' => $incomes->comments,
+                
                 'created_at' => $incomes->created_at,
 
                 'category' => [
