@@ -2,39 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
 
-class AuthController 
+class AuthController extends Controller
 {
 
     public function login(Request $request)
     {
-        $request->validate([
+        $credential = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $credential['email'])->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$user || !Hash::check($credential['password'], $user->password)) {
             return response()->json([
-                'message' => 'Invalid credentials',
-                'data' => null,
+                'message' => 'Credenciales invalidas',
                 'success' => false
             ], 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken('auth_token_jers')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login successful',
+            'message' => 'Bienvenido ' . $user->name,
             'user' => $user,
             'token' => $token,
-            'success' => true
         ], 200);
     }
 
@@ -43,8 +41,12 @@ class AuthController
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'message' => 'Logout successful',
+            'message' => 'Sesion cerrada correctamente',
             'success' => true
         ], 200);
+    }
+
+    public function mes(Request $request){
+        return response()->json($request->user());
     }
 }

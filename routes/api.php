@@ -21,35 +21,46 @@ use App\Http\Controllers\DashboardController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
-    
-Route::get('/dashboard', [DashboardController::class, 'index']);
+Route::middleware('auth:sanctum')->group(function () {
 
-Route::prefix('categories')->group(function () {
-    Route::get('expense', [CategoryController::class, 'listExpense']);
-    Route::get('income',  [CategoryController::class, 'listIncome']);
-    Route::get('/getCategoryList', [CategoryController::class, 'todas']);
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
 
+    Route::get('/me', [AuthController::class, 'me']);
+
+
+    Route::get('/dashboard', [DashboardController::class, 'index']);
+
+
+    Route::prefix('categories')->group(function () {
+        Route::get('expense', [CategoryController::class, 'listExpense']);
+        Route::get('income',  [CategoryController::class, 'listIncome']);
+        Route::get('/getCategoryList', [CategoryController::class, 'todas']);
+    });
+
+    Route::prefix('expenses')->group(function () {
+        Route::get('/',       [ExpenseController::class, 'list']);
+        Route::post('/',      [ExpenseController::class, 'store']);
+        Route::put('/{id}',   [ExpenseController::class, 'update']);
+        Route::delete('/{id}', [ExpenseController::class, 'destroy']);
+    });
+
+    Route::prefix('incomes')->group(function () {
+        Route::get('/',       [IncomeController::class, 'list']);
+        Route::post('/',      [IncomeController::class, 'store']);
+        Route::put('/{id}',   [IncomeController::class, 'update']);
+        Route::delete('/{id}', [IncomeController::class, 'destroy']);
+    });
+
+    Route::get('payment-methods', [PaymentMethodController::class, 'list']);
+
+
+    Route::post('/logout', [AuthController::class, 'logout']);
 });
-
-Route::prefix('expenses')->group(function () {
-    Route::get('/',       [ExpenseController::class, 'list']);
-    Route::post('/',      [ExpenseController::class, 'store']);
-    Route::put('/{id}',   [ExpenseController::class, 'update']);
-    Route::delete('/{id}',[ExpenseController::class, 'destroy']);
-});
-
-Route::prefix('incomes')->group(function () {
-    Route::get('/',       [IncomeController::class, 'list']);
-    Route::post('/',      [IncomeController::class, 'store']);
-    Route::put('/{id}',   [IncomeController::class, 'update']);
-    Route::delete('/{id}',[IncomeController::class, 'destroy']);
-});
-
-Route::get('payment-methods', [PaymentMethodController::class, 'list']);
