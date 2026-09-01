@@ -24,7 +24,7 @@ class CategoryService
     private function getByType(string $type)
     {
         return Category::query()
-            ->select('id', 'name', 'label', 'icon', 'type')
+            ->select('id', 'name', 'label', 'icon', 'type', 'status')
             ->where('type', $type)
             ->orderBy('name')
             ->get();
