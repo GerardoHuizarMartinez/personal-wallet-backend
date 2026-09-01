@@ -9,11 +9,12 @@ class CategoryMapper
     public static function toArray(Category $category): array
     {
         return [
-            'id'    => $category->id,
-            'name'  => $category->name,
-            'label' => $category->label,
-            'type'  => $category->type,
-            'icon'  => $category->icon,
+            'id'     => $category->id,
+            'name'   => $category->name,
+            'label'  => $category->label,
+            'type'   => $category->type,
+            'icon'   => $category->icon,
+            'status' => $category->status,
         ];
     }
 
