@@ -21,6 +21,18 @@ class CategoryService
         );
     }
 
+    public function create(array $data): array
+    {
+        $category = Category::create([
+            'name'   => $data['name'],
+            'label'  => $data['label'] ?? null,
+            'type'   => $data['type'],
+            'status' => $data['status'],
+        ]);
+
+        return CategoryMapper::toArray($category);
+    }
+
     public function update(int $id, array $data): array
     {
         $category = Category::findOrFail($id);
@@ -33,6 +45,12 @@ class CategoryService
         ]);
 
         return CategoryMapper::toArray($category);
+    }
+
+    public function delete(int $id): void
+    {
+        $category = Category::findOrFail($id);
+        $category->delete();
     }
 
     private function getByType(string $type)

@@ -50,7 +50,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('expense', [CategoryController::class, 'listExpense']);
         Route::get('income',  [CategoryController::class, 'listIncome']);
         Route::get('/getCategoryList', [CategoryController::class, 'todas']);
+        Route::post('/', [CategoryController::class, 'store']);
         Route::put('/{id}', [CategoryController::class, 'update']);
+        Route::delete('/{id}', [CategoryController::class, 'destroy']);
     });
 
     Route::prefix('expenses')->group(function () {

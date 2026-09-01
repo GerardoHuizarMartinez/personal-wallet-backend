@@ -27,6 +27,20 @@ class CategoryController
         );
     }
 
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'name'   => 'required|string|max:50',
+            'label'  => 'nullable|string|max:30',
+            'type'   => 'required|in:expense,income',
+            'status' => 'required|in:Active,Inactive',
+        ]);
+
+        $category = $this->categoryService->create($validated);
+
+        return response()->json($category, 201);
+    }
+
     public function update(int $id, Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -39,5 +53,14 @@ class CategoryController
         $category = $this->categoryService->update($id, $validated);
 
         return response()->json($category);
+    }
+
+    public function destroy(int $id): JsonResponse
+    {
+        $this->categoryService->delete($id);
+
+        return response()->json([
+            'message' => 'Categoría eliminada correctamente',
+        ]);
     }
 }
