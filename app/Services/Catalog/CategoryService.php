@@ -21,6 +21,20 @@ class CategoryService
         );
     }
 
+    public function update(int $id, array $data): array
+    {
+        $category = Category::findOrFail($id);
+
+        $category->update([
+            'name'   => $data['name'],
+            'label'  => $data['label'],
+            'type'   => $data['type'],
+            'status' => $data['status'],
+        ]);
+
+        return CategoryMapper::toArray($category);
+    }
+
     private function getByType(string $type)
     {
         return Category::query()
