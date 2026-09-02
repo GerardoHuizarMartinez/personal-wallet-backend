@@ -19,16 +19,18 @@ class ExpenseController
     ) {}
 
 
-    public function list()
+    public function list(Request $request)
     {
 
         $currentDate = Carbon::now();
-        $fechaFormateada = $currentDate->format('Y-m-d H:i:s');
-        $month  = $currentDate->month;
-        $year = $currentDate->year;
 
-        $startdate = Carbon::create($year, $month, 1)->startOfDay();
-        $enddate = Carbon::parse($fechaFormateada)->endOfDay();
+        $startdate = $request->filled('start_date')
+            ? Carbon::parse($request->query('start_date'))->startOfDay()
+            : Carbon::create($currentDate->year, $currentDate->month, 1)->startOfDay();
+
+        $enddate = $request->filled('end_date')
+            ? Carbon::parse($request->query('end_date'))->endOfDay()
+            : $currentDate->copy()->endOfDay();
 
         $list = Expense::select(
             'id',
@@ -42,7 +44,7 @@ class ExpenseController
         )
             ->with([
                 'category:id,name',
-                'payment_method:id,name,slug',
+                'payment_method:id,name,label',
             ])
             ->whereBetween('expense_date', [$startdate, $enddate])
             ->where('user_id', 1)
