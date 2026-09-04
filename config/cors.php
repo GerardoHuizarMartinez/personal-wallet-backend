@@ -20,7 +20,7 @@ return [
     'allowed_methods' => ['*'],
 
     // 'allowed_origins' => [env('FRONTEND_URL', 'http://localhost:3000','exp://192.168.100.22:8081')],
-    'allowed_origins' => ['http://146.190.67.18', 'http://localhost:5173', 'http://192.168.100.32:5173', 'http://10.77.104.72:5173'], // 👈 NUNCA usar '*' si supports_credentials es true
+    'allowed_origins' => ['http://146.190.67.18', 'http://localhost:5173', 'http://192.168.100.32:5173', 'http://10.77.104.72:5173', 'http://10.122.79.192:5173'], // 👈 NUNCA usar '*' si supports_credentials es true
     
     'allowed_origins_patterns' => [],
 

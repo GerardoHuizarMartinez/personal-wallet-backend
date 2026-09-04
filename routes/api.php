@@ -8,6 +8,9 @@ use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ColonyController;
+use App\Mappers\UserMapper;
 
 
 /*
@@ -37,7 +40,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return UserMapper::toArray($request->user());
     });
 
     Route::get('/me', [AuthController::class, 'me']);
@@ -70,6 +73,21 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::get('payment-methods', [PaymentMethodController::class, 'list']);
+
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+        Route::get('/{id}', [UserController::class, 'show']);
+        Route::post('/', [UserController::class, 'store']);
+        Route::put('/{id}', [UserController::class, 'update']);
+        Route::delete('/{id}', [UserController::class, 'destroy']);
+        Route::post('/{id}/photo', [UserController::class, 'uploadPhoto']);
+        Route::delete('/{id}/photo', [UserController::class, 'deletePhoto']);
+    });
+
+    Route::prefix('colonies')->group(function () {
+        Route::get('/', [ColonyController::class, 'index']);
+        Route::get('/{id}', [ColonyController::class, 'show']);
+    });
 
 
     Route::post('/logout', [AuthController::class, 'logout']);
