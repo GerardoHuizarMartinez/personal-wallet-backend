@@ -47,7 +47,7 @@ class IncomeController
             ->whereBetween('income_date', [$startdate, $enddate])
             ->where('user_id', 1)
             ->orderByDesc('id')
-            ->paginate(200); // ← ¿tienes esto?
+            ->get();
 
         // Y el summary se calcula sobre TODOS los registros, no solo la página
         $allList = Income::whereBetween('income_date', [$startdate, $enddate])
@@ -66,12 +66,10 @@ class IncomeController
             ->values();
 
         return response()->json([
-            'data' => $list->items(),        // ← items() no get()
+            'data' => $list,
             'grouped' => $summaryPaymentMethod,
             'current_date' => $currentDate,
-            'total' => $list->total(),
-            'current_page' => $list->currentPage(),
-            'last_page' => $list->lastPage(),
+            'total' => $list->count(),
             'status' => 200,
         ]);
     }
@@ -122,6 +120,27 @@ class IncomeController
                 'message' => $e->getMessage(),
             ]);
         }
+    }
+
+    public function show($id): JsonResponse
+    {
+        $income = Income::select(
+            'id',
+            'product_name',
+            'amount',
+            'user_id',
+            'category_id',
+            'payment_method_id',
+            'income_date',
+            'comments'
+        )
+            ->with([
+                'category:id,name',
+                'payment_method:id,name,label',
+            ])
+            ->findOrFail($id);
+
+        return response()->json($income);
     }
 
     /**

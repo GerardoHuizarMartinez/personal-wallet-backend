@@ -12,7 +12,6 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ColonyController;
 use App\Mappers\UserMapper;
 
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -63,6 +62,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/',      [ExpenseController::class, 'store']);
         Route::put('/{id}',   [ExpenseController::class, 'update']);
         Route::delete('/{id}', [ExpenseController::class, 'destroy']);
+        Route::get('/download-expenses-report', [ExpenseController::class, 'downloadExcelWithExpensesByDate']);
+        Route::get('/{id}',   [ExpenseController::class, 'show']);
     });
 
     Route::prefix('incomes')->group(function () {
@@ -70,6 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/',      [IncomeController::class, 'store']);
         Route::put('/{id}',   [IncomeController::class, 'update']);
         Route::delete('/{id}', [IncomeController::class, 'destroy']);
+        Route::get('/{id}',   [IncomeController::class, 'show']);
     });
 
     Route::get('payment-methods', [PaymentMethodController::class, 'list']);
