@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -40,7 +39,7 @@ return new class extends Migration
             'updated_at' => $now,
         ]);
 
-        $userRoleId = DB::table('roles')->insertGetId([
+        DB::table('roles')->insert([
             'name' => 'Usuario',
             'slug' => 'usuario',
             'is_super_admin' => false,
@@ -58,51 +57,6 @@ return new class extends Migration
         // La(s) cuenta(s) que ya existían antes de este cambio conservan acceso total.
         DB::table('users')->update(['role_id' => $adminRoleId]);
 
-        DB::table('users')->insert([
-            [
-                'name' => 'Soporte',
-                'first_last_name' => 'Tidingo',
-                'second_last_name' => null,
-                'birthday' => null,
-                'gender' => 'Male',
-                'email' => 'soporte@test.com',
-                'password' => Hash::make('Soporte123!'),
-                'telephone' => null,
-                'cellphone' => null,
-                'country' => null,
-                'colony_id' => null,
-                'role_id' => $adminRoleId,
-                'street' => null,
-                'no_ext' => null,
-                'no_int' => null,
-                'status' => 'Active',
-                'url_image' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'name' => 'QA',
-                'first_last_name' => 'Tidingo',
-                'second_last_name' => null,
-                'birthday' => null,
-                'gender' => 'Male',
-                'email' => 'qa@test.com',
-                'password' => Hash::make('Qa12345!'),
-                'telephone' => null,
-                'cellphone' => null,
-                'country' => null,
-                'colony_id' => null,
-                'role_id' => $userRoleId,
-                'street' => null,
-                'no_ext' => null,
-                'no_int' => null,
-                'status' => 'Active',
-                'url_image' => null,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-        ]);
-
         // No doctrine/dbal instalado para ->nullable(false)->change(), igual que en
         // make_colony_id_nullable_in_users_table.php: se aplica con SQL crudo.
         DB::statement('ALTER TABLE users MODIFY role_id BIGINT UNSIGNED NOT NULL');
@@ -114,5 +68,13 @@ return new class extends Migration
             $table->dropForeign(['role_id']);
             $table->dropColumn('role_id');
         });
+
+        $roleIds = DB::table('roles')->whereIn('slug', ['administrador', 'usuario'])->pluck('id');
+        DB::table('permission_role')->whereIn('role_id', $roleIds)->delete();
+        DB::table('roles')->whereIn('id', $roleIds)->delete();
+
+        DB::table('permissions')
+            ->whereIn('module', array_merge(self::MODULES_WITH_CRUD, self::MODULES_VIEW_ONLY))
+            ->delete();
     }
 };
