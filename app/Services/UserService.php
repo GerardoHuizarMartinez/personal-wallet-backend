@@ -14,13 +14,13 @@ class UserService
     public function list(): array
     {
         return UserMapper::collection(
-            User::orderBy('name')->get()
+            User::with('role')->orderBy('name')->get()
         );
     }
 
     public function find(int $id): array
     {
-        return UserMapper::toArray(User::with('colony')->findOrFail($id));
+        return UserMapper::toArray(User::with(['colony', 'role.permissions'])->findOrFail($id));
     }
 
     public function create(array $data): array
@@ -29,7 +29,7 @@ class UserService
 
         $user = User::create($data);
 
-        return UserMapper::toArray($user);
+        return UserMapper::toArray($user->load('role.permissions'));
     }
 
     public function update(int $id, array $data): array
@@ -52,7 +52,7 @@ class UserService
 
         $user->update($data);
 
-        return UserMapper::toArray($user);
+        return UserMapper::toArray($user->load('role.permissions'));
     }
 
     public function delete(int $id): void

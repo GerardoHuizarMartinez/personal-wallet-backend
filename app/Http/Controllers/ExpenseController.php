@@ -390,7 +390,7 @@ class ExpenseController
             $total = 0;
             foreach ($records as $record) {
                 $sheet->setCellValue("A{$row}", $counter);
-                $sheet->setCellValue("B{$row}", Carbon::parse($record->{$dateColumn})->format('d-m-Y'));
+                $sheet->setCellValue("B{$row}", Carbon::parse($record->{$dateColumn})->format('d-m-Y')); 
                 $sheet->setCellValue("C{$row}", $record->product_name);
                 $sheet->setCellValue("D{$row}", $record->amount);
                 $sheet->setCellValue("E{$row}", $record->payment_method->name ?? '');

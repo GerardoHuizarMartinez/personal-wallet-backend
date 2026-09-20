@@ -28,7 +28,27 @@ class UserMapper
             'no_int'           => $user->no_int,
             'status'           => $user->status,
             'url_image'        => self::resolveImageUrl($user->url_image),
+            'role_id'          => $user->role_id,
+            'role'             => $user->relationLoaded('role') && $user->role
+                ? [
+                    'id'             => $user->role->id,
+                    'name'           => $user->role->name,
+                    'is_super_admin' => $user->role->is_super_admin,
+                ]
+                : null,
+            'permissions'      => self::normalizePermissions($user->effectivePermissions()),
         ];
+    }
+
+    /**
+     * json_encode serializa un array PHP vacío como `[]`, no `{}`. Sin este
+     * cast, un usuario/rol sin ningún permiso le llega al frontend como un
+     * arreglo en vez de un objeto, y `JSON.stringify` descarta silenciosamente
+     * las claves que el frontend le agregue después (ej. al marcar checkboxes).
+     */
+    private static function normalizePermissions(array $permissions): array|\stdClass
+    {
+        return empty($permissions) ? new \stdClass() : $permissions;
     }
 
     public static function collection(iterable $users): array

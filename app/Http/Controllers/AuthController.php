@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mappers\UserMapper;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -31,7 +32,7 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'Bienvenido ' . $user->name,
-            'user' => $user,
+            'user' => UserMapper::toArray($user->load('role.permissions')),
             'token' => $token,
         ], 200);
     }
@@ -46,7 +47,8 @@ class AuthController extends Controller
         ], 200);
     }
 
-    public function mes(Request $request){
-        return response()->json($request->user());
+    public function me(Request $request)
+    {
+        return response()->json(UserMapper::toArray($request->user()->load('role.permissions')));
     }
 }

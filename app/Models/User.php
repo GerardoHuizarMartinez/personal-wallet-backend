@@ -27,6 +27,7 @@ class User extends Model
         'no_int',
         'status',
         'url_image',
+        'role_id',
     ];
 
     protected $hidden = [
@@ -37,5 +38,33 @@ class User extends Model
     public function colony()
     {
         return $this->belongsTo(Colony::class);
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Mapa módulo => acciones permitidas. Un super admin recibe todas las
+     * combinaciones existentes, para que el frontend y el middleware no
+     * tengan que ramificar el caso "es super admin" por separado.
+     */
+    public function effectivePermissions(): array
+    {
+        $role = $this->role ?? $this->role()->with('permissions')->first();
+
+        if (!$role) {
+            return [];
+        }
+
+        $permissions = $role->is_super_admin
+            ? Permission::all()
+            : $role->permissions;
+
+        return $permissions
+            ->groupBy('module')
+            ->map(fn ($modulePermissions) => $modulePermissions->pluck('action')->values()->all())
+            ->all();
     }
 }
