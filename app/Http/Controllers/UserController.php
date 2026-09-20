@@ -42,6 +42,7 @@ class UserController
             'no_int'           => 'nullable|string|max:20',
             'status'           => 'required|in:Active,Inactive',
             'url_image'        => 'nullable|string|max:2048',
+            'role_id'          => 'required|exists:roles,id',
         ]);
 
         $user = $this->userService->create($validated);
@@ -69,6 +70,7 @@ class UserController
             'no_int'           => 'nullable|string|max:20',
             'status'           => 'required|in:Active,Inactive',
             'url_image'        => 'nullable|string|max:2048',
+            'role_id'          => 'required|exists:roles,id',
         ]);
 
         $user = $this->userService->update($id, $validated);
