@@ -24,6 +24,19 @@ class ExpenseService
         return ExpenseMapper::toArray($expense);
     } 
 
+    public function findCurrentYearExpenses()
+    {
+        $expenses = Expense::with([
+            'category',
+            'payment_method',
+        ])
+            ->whereYear('expense_date', now()->year)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return ExpenseMapper::toDashboard($expenses);
+    }
+
     public function findCurrentMonthExpenses()
     {
         $expenses = Expense::with([

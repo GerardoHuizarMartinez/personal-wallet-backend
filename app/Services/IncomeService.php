@@ -24,6 +24,18 @@ class IncomeService
         return IncomeMapper::toArray($income);
     }
 
+   public function findCurrentYearIncomes()
+{
+    $incomes = Income::with([
+        'category',
+    ])
+        ->whereYear('income_date', now()->year)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return IncomeMapper::toDashboard($incomes);
+}
+
    public function findCurrentMonthIncomes()
 {
     $incomes = Income::with([
@@ -33,8 +45,6 @@ class IncomeService
         ->whereYear('income_date', now()->year)
         ->orderBy('created_at', 'desc')
         ->get();
-
-    //  dd($incomes);
 
     return IncomeMapper::toDashboard($incomes);
 }
