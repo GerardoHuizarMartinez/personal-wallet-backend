@@ -34,18 +34,13 @@ class DashboardService
         |------------------------------------------
         */
 
-        $yearExpenses = $this->expenseService->findCurrentYearExpenses();
-
-        $yearIncomes = $this->incomeService->findCurrentYearIncomes();
-
         $monthExpenses = $this->expenseService->findCurrentMonthExpenses();
 
         $monthIncomes = $this->incomeService->findCurrentMonthIncomes();
 
+        $yearExpenses = $this->expenseService->findCurrentYearExpenses();
 
-        // $yearlyExpenses = $this->expenseService->findYearlyExpenses();
-
-        // $yearlyIncomes = $this->incomeService->findYearlyIncomes();
+        $yearIncomes = $this->incomeService->findCurrentYearIncomes();
 
         /*
         |------------------------------------------
@@ -53,7 +48,7 @@ class DashboardService
         |------------------------------------------
         */
 
-        $summary = $this->summaryService->build( $yearExpenses, $yearIncomes, $monthExpenses, $monthIncomes );
+        $summary = $this->summaryService->build( $monthExpenses, $monthIncomes, $yearExpenses, $yearIncomes );
 
         $transactions = $this->transactionService->build($monthExpenses, $monthIncomes);
 

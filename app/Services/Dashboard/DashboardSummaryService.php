@@ -6,14 +6,20 @@ use Illuminate\Support\Collection;
 
 class DashboardSummaryService
 {
-    public function build( Collection $yearPurchases, Collection $yearIncomes, Collection $monthPurchases, Collection $monthIncomes ): array
+    public function build( Collection $monthPurchases, Collection $monthIncomes, Collection $yearPurchases, Collection $yearIncomes ): array
     {
 
-    $expense = $yearPurchases->sum('amount');
+    $expense = $monthPurchases->sum('amount');
 
-    $income = $yearIncomes->sum('amount');
+    $income = $monthIncomes->sum('amount');
 
     $balance = $income - $expense;
+
+    $yearExpense = $yearPurchases->sum('amount');
+
+    $yearIncome = $yearIncomes->sum('amount');
+
+    $yearBalance = $yearIncome - $yearExpense;
 
     $purchasesCount = $monthPurchases->count();
 
@@ -28,6 +34,12 @@ class DashboardSummaryService
         'expense' => $expense,
 
         'balance' => $balance,
+
+        'yearIncome' => $yearIncome,
+
+        'yearExpense' => $yearExpense,
+
+        'yearBalance' => $yearBalance,
 
         'transactions' => $transactions,
 
