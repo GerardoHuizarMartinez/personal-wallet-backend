@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
 use PhpOffice\PhpSpreadsheet\IOFactory;
-use PhpOffice\PhpSpreadsheet\NamedRange;
 use PhpOffice\PhpSpreadsheet\Reader\Csv;
 use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -60,8 +59,12 @@ class ImportController
         $sheet->getStyle("B2:B{$last}")->getNumberFormat()->setFormatCode('#,##0.00');
 
         // Listas desplegables estrictas (no aceptan valores fuera del catálogo).
-        $this->addListValidation($sheet, 'C', 'Categorias', 'Categoría', $this->optionsPrompt($categories));
-        $this->addListValidation($sheet, 'D', 'MetodosPago', 'Método de pago', $this->optionsPrompt($methods));
+        // Referencia directa a la hoja de catálogos (más compatible que un rango con nombre:
+        // Excel web/Mac, Google Sheets y LibreOffice no siempre resuelven los nombres).
+        $categoriesRange = 'Catalogos!$A$1:$A$' . max(count($categories), 1);
+        $methodsRange = 'Catalogos!$B$1:$B$' . max(count($methods), 1);
+        $this->addListValidation($sheet, 'C', $categoriesRange, 'Categoría', $this->optionsPrompt($categories));
+        $this->addListValidation($sheet, 'D', $methodsRange, 'Método de pago', $this->optionsPrompt($methods));
 
         // Monto: número mayor a 0.
         $amountRule = $sheet->getCell('B2')->getDataValidation();
@@ -126,6 +129,20 @@ class ImportController
         // si trae un timestamp válido se usa como created_at.
         $sheet->getStyle("G2:G{$last}")->getNumberFormat()->setFormatCode('yyyy-mm-dd hh:mm:ss');
         $sheet->getColumnDimension('G')->setWidth(40);
+        // El formato también se aplica a toda la columna, por si se llenan filas más allá de LAST_ROW.
+        $sheet->getStyle('G:G')->getNumberFormat()->setFormatCode('yyyy-mm-dd hh:mm:ss');
+        // Solo acepta fecha y hora válidas (no futuras); sin mensaje de ayuda a propósito.
+        $timestampRule = $sheet->getCell('G2')->getDataValidation();
+        $timestampRule->setType(DataValidation::TYPE_DATE)
+            ->setOperator(DataValidation::OPERATOR_BETWEEN)
+            ->setFormula1('36526') // 2000-01-01
+            ->setFormula2('NOW()')
+            ->setAllowBlank(true)
+            ->setShowErrorMessage(true)
+            ->setErrorStyle(DataValidation::STYLE_STOP)
+            ->setErrorTitle('Valor inválido')
+            ->setError('Escribe una fecha y hora válidas: AAAA-MM-DD hh:mm:ss.');
+        $sheet->setDataValidation("G2:G{$last}", $timestampRule);
 
         // ===== Hoja oculta con los valores permitidos (alimenta los desplegables) =====
         $catalog = $spreadsheet->createSheet();
@@ -136,8 +153,6 @@ class ImportController
         foreach ($methods as $i => $name) {
             $catalog->setCellValue('B' . ($i + 1), $name);
         }
-        $spreadsheet->addNamedRange(new NamedRange('Categorias', $catalog, '$A$1:$A$' . max(count($categories), 1)));
-        $spreadsheet->addNamedRange(new NamedRange('MetodosPago', $catalog, '$B$1:$B$' . max(count($methods), 1)));
         $catalog->setSheetState(Worksheet::SHEETSTATE_HIDDEN);
 
         // ===== Hoja de instrucciones =====
