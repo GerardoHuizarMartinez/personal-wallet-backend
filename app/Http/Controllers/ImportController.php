@@ -32,6 +32,9 @@ class ImportController
     // Métodos de pago (label) que no se ofrecen ni se aceptan en la carga masiva.
     private const EXCLUDED_METHODS = ['credit-card'];
 
+    // Columna G (sin encabezado, visible pero discreta en la plantilla): timestamp opcional para created_at.
+    private const TIMESTAMP_COLUMN = 6;
+
     private const HEADERS = ['Concepto', 'Monto', 'Categoría', 'Método de pago', 'Fecha (AAAA-MM-DD)', 'Comentarios (opcional)'];
 
     /**
@@ -75,16 +78,17 @@ class ImportController
             ->setPrompt('Mayor a 0');
         $sheet->setDataValidation("B2:B{$last}", $amountRule);
 
-        // Fecha: solo fechas válidas; Excel las formatea como AAAA-MM-DD.
+        // Fecha: solo fechas válidas, hoy o anteriores; Excel las formatea como AAAA-MM-DD.
         $dateRule = $sheet->getCell('E2')->getDataValidation();
         $dateRule->setType(DataValidation::TYPE_DATE)
-            ->setOperator(DataValidation::OPERATOR_GREATERTHAN)
+            ->setOperator(DataValidation::OPERATOR_BETWEEN)
             ->setFormula1('36526') // 2000-01-01
+            ->setFormula2('TODAY()') // no se permiten fechas futuras
             ->setAllowBlank(false)
             ->setShowErrorMessage(true)
             ->setErrorStyle(DataValidation::STYLE_STOP)
             ->setErrorTitle('Fecha inválida')
-            ->setError('Escribe una fecha válida, por ejemplo 2026-11-08.')
+            ->setError('Escribe una fecha válida, de hoy o anterior.')
             ->setShowInputMessage(true)
             ->setPromptTitle('Fecha')
             ->setPrompt('Ej. 2026-11-08');
@@ -117,6 +121,11 @@ class ImportController
             $sheet->getColumnDimension($col)->setWidth($width);
         }
         $sheet->freezePane('A2');
+
+        // Columna G sin encabezado, sin avisos y más ancha que las demás (visible; el ancho es la pista para devs):
+        // si trae un timestamp válido se usa como created_at.
+        $sheet->getStyle("G2:G{$last}")->getNumberFormat()->setFormatCode('yyyy-mm-dd hh:mm:ss');
+        $sheet->getColumnDimension('G')->setWidth(40);
 
         // ===== Hoja oculta con los valores permitidos (alimenta los desplegables) =====
         $catalog = $spreadsheet->createSheet();
@@ -198,8 +207,9 @@ class ImportController
         // Ignora filas completamente vacías conservando el número de fila real de Excel.
         $dataRows = [];
         foreach ($rows as $index => $row) {
-            $row = array_slice($row, 0, count(self::HEADERS)); // solo las columnas de la plantilla (A:F)
-            if (collect($row)->every(fn ($v) => $v === null || trim((string) $v) === '')) {
+            $row = array_slice($row, 0, self::TIMESTAMP_COLUMN + 1); // A:F + timestamp oculto (G)
+            // El timestamp por sí solo no cuenta como fila con datos.
+            if (collect(array_slice($row, 0, count(self::HEADERS)))->every(fn ($v) => $v === null || trim((string) $v) === '')) {
                 continue;
             }
             $dataRows[$index + 2] = $row;
@@ -226,7 +236,7 @@ class ImportController
         $dateColumn = $isIncome ? 'income_date' : 'expense_date';
 
         foreach ($dataRows as $rowNumber => $row) {
-            [$name, $amount, $category, $method, $date, $comments] = array_pad($row, 6, null);
+            [$name, $amount, $category, $method, $date, $comments, $timestamp] = array_pad($row, self::TIMESTAMP_COLUMN + 1, null);
             $rowErrors = [];
 
             $name = trim((string) $name);
@@ -260,12 +270,20 @@ class ImportController
             $parsedDate = $this->parseDate($date);
             if (!$parsedDate) {
                 $rowErrors[] = 'La fecha debe tener el formato AAAA-MM-DD';
+            } elseif ($parsedDate > now()->toDateString()) {
+                $rowErrors[] = 'La fecha no puede ser futura';
             }
 
             $comments = trim((string) $comments);
             if (mb_strlen($comments) > 250) {
                 $rowErrors[] = 'Los comentarios exceden 250 caracteres';
             }
+
+            $createdAt = $this->parseTimestamp($timestamp);
+            if ($createdAt && $createdAt->greaterThan(now())) {
+                $rowErrors[] = 'El timestamp no puede ser una fecha futura';
+            }
+            $createdAt ??= now();
 
             if ($rowErrors) {
                 $errors[] = ['row' => $rowNumber, 'messages' => $rowErrors];
@@ -280,7 +298,8 @@ class ImportController
                 $dateColumn => $parsedDate,
                 'comments' => $comments !== '' ? $comments : null,
                 'user_id' => 1, // temporal hasta tener auth
-                'created_at' => now(),
+                'source' => 'import',
+                'created_at' => $createdAt,
                 'updated_at' => now(),
             ];
         }
@@ -333,6 +352,24 @@ class ImportController
     private function normalize(string $value): string
     {
         return Str::of($value)->trim()->lower()->ascii()->toString();
+    }
+
+    /** Timestamp válido de la columna oculta; null si está vacío o no se puede interpretar. */
+    private function parseTimestamp(mixed $value): ?Carbon
+    {
+        if ($value === null || trim((string) $value) === '') {
+            return null;
+        }
+
+        try {
+            if (is_numeric($value)) {
+                return Carbon::instance(ExcelDate::excelToDateTimeObject((float) $value, config('app.timezone')));
+            }
+
+            return Carbon::parse(trim((string) $value), config('app.timezone'));
+        } catch (Throwable $e) {
+            return null;
+        }
     }
 
     private function parseDate(mixed $value): ?string

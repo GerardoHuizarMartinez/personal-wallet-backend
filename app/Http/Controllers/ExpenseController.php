@@ -54,7 +54,8 @@ class ExpenseController
             'category_id',
             'payment_method_id',
             'expense_date',
-            'comments'
+            'comments',
+            'source'
         )
             ->with([
                 'category:id,name',

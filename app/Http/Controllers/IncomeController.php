@@ -38,7 +38,8 @@ class IncomeController
             'category_id',
             'payment_method_id',
             'income_date',
-            'comments'
+            'comments',
+            'source'
         )
             ->with([
                 'category:id,name',
