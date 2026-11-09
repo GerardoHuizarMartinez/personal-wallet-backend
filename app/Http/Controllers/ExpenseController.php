@@ -62,6 +62,8 @@ class ExpenseController
             ])
             ->whereBetween('expense_date', [$startdate, $enddate])
             ->where('user_id', 1)
+            ->orderByDesc('expense_date')
+            ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->get();
 

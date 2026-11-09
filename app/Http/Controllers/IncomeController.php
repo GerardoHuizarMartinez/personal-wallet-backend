@@ -46,6 +46,8 @@ class IncomeController
             ])
             ->whereBetween('income_date', [$startdate, $enddate])
             ->where('user_id', 1)
+            ->orderByDesc('income_date')
+            ->orderByDesc('created_at')
             ->orderByDesc('id')
             ->get();
 

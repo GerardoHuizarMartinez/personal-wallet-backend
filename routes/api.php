@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -65,6 +66,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [ExpenseController::class, 'destroy'])->middleware('permission:expenses,delete');
         Route::get('/download-expenses-report', [ExpenseController::class, 'downloadExcelWithExpensesByDate'])
             ->middleware('permission:reports,view');
+        Route::get('/import-template', [ImportController::class, 'template'])->defaults('type', 'expense')
+            ->middleware('permission:expenses,create');
+        Route::post('/import', [ImportController::class, 'import'])->defaults('type', 'expense')
+            ->middleware('permission:expenses,create');
         Route::get('/{id}',   [ExpenseController::class, 'show']);
     });
 
@@ -73,6 +78,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/',      [IncomeController::class, 'store'])->middleware('permission:income,create');
         Route::put('/{id}',   [IncomeController::class, 'update'])->middleware('permission:income,edit');
         Route::delete('/{id}', [IncomeController::class, 'destroy'])->middleware('permission:income,delete');
+        Route::get('/import-template', [ImportController::class, 'template'])->defaults('type', 'income')
+            ->middleware('permission:income,create');
+        Route::post('/import', [ImportController::class, 'import'])->defaults('type', 'income')
+            ->middleware('permission:income,create');
         Route::get('/{id}',   [IncomeController::class, 'show']);
     });
 
